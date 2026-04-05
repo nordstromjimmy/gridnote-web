@@ -46,6 +46,29 @@ export default function NoteDialog({
     }
   }, [editing]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopImmediatePropagation(); // stops ALL other listeners including ReactFlow
+        if (confirmDelete) {
+          setConfirmDelete(false);
+          return;
+        }
+        if (editing) {
+          setEditing(false);
+          return;
+        }
+        onClose();
+      }
+    };
+
+    // useCapture: true means this runs before ReactFlow's listener
+    document.addEventListener("keydown", handler, true);
+    return () => document.removeEventListener("keydown", handler, true);
+  }, [open, confirmDelete, editing, onClose]);
+
   if (!open) return null;
 
   const handleSave = () => {
@@ -65,17 +88,6 @@ export default function NoteDialog({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      if (confirmDelete) {
-        setConfirmDelete(false);
-        return;
-      }
-      if (editing) {
-        setEditing(false);
-        return;
-      }
-      onClose();
-    }
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && editing) {
       handleSave();
     }
@@ -85,7 +97,6 @@ export default function NoteDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
       onKeyDown={handleKeyDown}
     >
       <div

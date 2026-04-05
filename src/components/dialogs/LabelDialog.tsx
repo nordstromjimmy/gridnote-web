@@ -52,6 +52,7 @@ export default function LabelDialog({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
+      e.stopPropagation();
       if (confirmDelete) {
         setConfirmDelete(false);
         return;
@@ -65,7 +66,6 @@ export default function LabelDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
       onKeyDown={handleKeyDown}
     >
       <div

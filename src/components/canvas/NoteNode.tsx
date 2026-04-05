@@ -30,16 +30,6 @@ function NoteNode({ data, selected }: NodeProps) {
     [onOpen, note],
   );
 
-  const handleStyle = (visible: boolean) => ({
-    width: 12,
-    height: 12,
-    backgroundColor: "#546E7A",
-    border: "2px solid white",
-    opacity: visible ? 1 : 0,
-    transition: "opacity 0.15s",
-    zIndex: 10,
-  });
-
   return (
     <>
       <NodeResizer
@@ -118,14 +108,17 @@ function NoteNode({ data, selected }: NodeProps) {
 
         {/* Body */}
         {note.text && (
-          <div className="flex-1 px-2.5 pt-1 pb-2 overflow-hidden">
+          <div
+            className="flex-1 min-h-0 px-2.5 pt-1 pb-2"
+            style={{ overflow: "hidden" }}
+          >
             <p
-              className="text-[12px] leading-[1.45] overflow-hidden m-0"
+              className="text-[12px] leading-[1.45] m-0 h-full"
               style={{
                 color: "rgba(255,255,255,0.72)",
-                display: "-webkit-box",
-                WebkitLineClamp: 6,
-                WebkitBoxOrient: "vertical",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                overflow: "hidden",
               }}
             >
               {note.text}
