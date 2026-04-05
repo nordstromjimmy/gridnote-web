@@ -28,8 +28,7 @@ import type { Note, NoteLabel } from "@/lib/types";
 import LabelNode from "./LabelNode";
 import AddLabelButton from "./AddLabelButton";
 import LabelDialog from "../dialogs/LabelDialog";
-
-const nodeTypes = { note: NoteNode };
+import CanvasHelp from "./CanvasHelp";
 
 function noteToNode(note: Note, onOpen: (note: Note) => void): Node {
   return {
@@ -281,11 +280,11 @@ function CanvasInner() {
         />
       </ReactFlow>
 
+      <CanvasHelp />
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3">
         <AddNoteButton onAdd={handleAddNote} />
         <AddLabelButton onAdd={handleAddLabel} />
       </div>
-      <SearchBar onSelect={handleSearchSelect} />
       <SearchBar onSelect={handleSearchSelect} />
 
       <CreateNoteDialog

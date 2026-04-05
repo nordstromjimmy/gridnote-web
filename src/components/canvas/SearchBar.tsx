@@ -51,7 +51,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
       {/* Search trigger button */}
       <button
         onClick={handleOpen}
-        className="absolute bottom-8 right-20 z-10 w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95"
+        className="absolute bottom-39 right-4.5 z-10 w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all active:scale-95"
         style={{ backgroundColor: "#263238" }}
         title="Search notes"
       >
