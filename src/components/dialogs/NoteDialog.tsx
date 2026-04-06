@@ -103,7 +103,6 @@ export default function NoteDialog({
         className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
         style={{
           backgroundColor: "#263238",
-          border: `1px solid ${note.colorValue}99`,
         }}
       >
         {/* Header */}

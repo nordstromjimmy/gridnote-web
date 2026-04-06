@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
 
 const DEMO_NOTES = [
   {
@@ -149,13 +150,13 @@ const FEATURES = [
         stroke="currentColor"
         strokeWidth="1.5"
       >
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <line x1="8" y1="21" x2="16" y2="21" />
-        <line x1="12" y1="17" x2="12" y2="21" />
+        <polyline points="23,4 23,10 17,10" />
+        <polyline points="1,20 1,14 7,14" />
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
       </svg>
     ),
-    title: "Works offline",
-    desc: "All notes are stored locally on your device. No account, no internet required.",
+    title: "Sync across devices",
+    desc: "Your notes stay in sync across all your devices. Pick up where you left off, anywhere.",
   },
   {
     icon: (
@@ -191,13 +192,15 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div
-      className="min-h-screen bg-[#111820] text-white overflow-x-hidden"
-      style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap');
-        .serif { font-family: 'DM Serif Display', serif; }
+    <>
+      <JsonLd />
+      <div
+        className="min-h-screen bg-[#111820] text-white overflow-x-hidden"
+        style={{ fontFamily: "'Outfit', 'Helvetica Neue', sans-serif" }}
+      >
+        <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600&display=swap');
+        .display { font-family: 'Syne', sans-serif; }
         .grid-bg {
           background-image:
             linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -216,64 +219,290 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-8 md:px-12 py-6 relative z-10">
-        <span className="serif text-xl tracking-tight">Grid Notes</span>
-        <Link
-          href="/canvas"
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all active:scale-95"
-          style={{ backgroundColor: "#546E7A" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#607D8B")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "#546E7A")
-          }
-        >
-          Open canvas
-        </Link>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative px-8 md:px-12 pt-12 pb-20 max-w-6xl mx-auto">
-        <div className="grid-bg absolute inset-0 pointer-events-none" />
-
-        {/* Text */}
-        <div
-          className={`fade-up relative z-10 max-w-2xl ${heroVisible ? "visible" : ""}`}
-        >
-          <div
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium tracking-widest mb-7"
-            style={{
-              background: "rgba(84,110,122,0.2)",
-              border: "1px solid rgba(84,110,122,0.4)",
-              color: "#90A4AE",
-            }}
+        {/* Nav */}
+        <nav className="flex items-center justify-end px-8 md:px-12 py-6 relative z-10">
+          <Link
+            href="/demo"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all active:scale-95"
+            style={{ backgroundColor: "#546E7A" }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "#607D8B")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#546E7A")
+            }
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#546E7A] inline-block" />
-            Infinite canvas note-taking
+            Open canvas
+          </Link>
+        </nav>
+
+        {/* Hero */}
+        <section className="relative px-8 md:px-12 pt-12 pb-20 max-w-6xl mx-auto">
+          <div className="grid-bg absolute inset-0 pointer-events-none" />
+
+          {/* Text */}
+          <div
+            className={`fade-up relative z-10 max-w-2xl ${heroVisible ? "visible" : ""}`}
+          >
+            <div
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium tracking-widest mb-7"
+              style={{
+                background: "rgba(84,110,122,0.2)",
+                border: "1px solid rgba(84,110,122,0.4)",
+                color: "#90A4AE",
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#546E7A] inline-block" />
+              Infinite canvas note-taking
+            </div>
+
+            <h1 className="display text-3xl md:text-4xl leading-none tracking-tight mb-6 font-bold">
+              Grid Notes App{" "}
+            </h1>
+
+            {/* Main hero h1 — two lines */}
+            <h1 className="display text-5xl md:text-7xl leading-none tracking-tight mb-6 font-bold">
+              Think in space,{" "}
+              <span style={{ color: "#607D8B" }}>not in lists.</span>
+            </h1>
+
+            <p
+              className="text-lg leading-relaxed font-light mb-10 max-w-md"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              An infinite grid canvas where you place notes wherever they make
+              sense. Link ideas, group concepts, and see the whole picture at
+              once.
+            </p>
+
+            <div className="flex items-center gap-5 flex-wrap">
+              <Link
+                href="/demo"
+                className="flex items-center gap-2.5 px-9 py-4 rounded-2xl text-base font-semibold text-white transition-all active:scale-95"
+                style={{ backgroundColor: "#546E7A" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
+                    "#607D8B";
+                  (e.currentTarget as HTMLAnchorElement).style.transform =
+                    "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
+                    "#546E7A";
+                  (e.currentTarget as HTMLAnchorElement).style.transform =
+                    "translateY(0)";
+                }}
+              >
+                Try it free
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12,5 19,12 12,19" />
+                </svg>
+              </Link>
+              <span
+                className="text-sm font-light"
+                style={{ color: "rgba(255,255,255,0.25)" }}
+              >
+                No account required
+              </span>
+            </div>
           </div>
 
-          <h1 className="serif text-5xl md:text-7xl leading-none tracking-tight mb-6">
-            Think in space,{" "}
-            <span className="italic" style={{ color: "#607D8B" }}>
-              not in lists.
-            </span>
-          </h1>
-
-          <p
-            className="text-lg leading-relaxed font-light mb-10 max-w-md"
-            style={{ color: "rgba(255,255,255,0.5)" }}
+          {/* Canvas preview */}
+          <div
+            className={`fade-up relative z-10 mt-16 rounded-2xl overflow-hidden ${heroVisible ? "visible" : ""}`}
+            style={{
+              height: 420,
+              backgroundColor: "#1E272C",
+              border: "1px solid rgba(255,255,255,0.08)",
+              transitionDelay: "200ms",
+            }}
           >
-            An infinite grid canvas where you place notes wherever they make
-            sense. Link ideas, group concepts, and see the whole picture at
-            once.
-          </p>
+            {/* Grid inside preview */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)
+            `,
+                backgroundSize: "48px 48px",
+              }}
+            />
 
-          <div className="flex items-center gap-5 flex-wrap">
+            {/* Connector lines */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+              <defs>
+                <marker
+                  id="arr"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto"
+                >
+                  <path
+                    d="M2 2L8 5L2 8"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </marker>
+              </defs>
+              <path
+                d="M 260 145 C 260 195 310 195 310 255"
+                fill="none"
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1.5"
+                markerEnd="url(#arr)"
+              />
+              <path
+                d="M 505 100 C 505 160 550 160 550 200"
+                fill="none"
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1.5"
+                markerEnd="url(#arr)"
+              />
+            </svg>
+
+            {/* Demo notes */}
+            {DEMO_NOTES.map((note) => (
+              <div
+                key={note.id}
+                className="note-in absolute rounded-[10px] overflow-hidden"
+                style={{
+                  left: note.x,
+                  top: note.y,
+                  width: note.w,
+                  height: note.h,
+                  backgroundColor: note.color,
+                  opacity: notesVisible ? 1 : 0,
+                  transform: notesVisible
+                    ? "translateY(0) scale(1)"
+                    : "translateY(16px) scale(0.96)",
+                  transitionDelay: `${note.delay}ms`,
+                  padding: "10px 12px",
+                }}
+              >
+                <p className="text-white text-[13px] font-bold mb-1.5 truncate">
+                  {note.title}
+                </p>
+                <p
+                  className="text-[11.5px] leading-relaxed overflow-hidden"
+                  style={{
+                    color: "rgba(255,255,255,0.65)",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 4,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {note.text}
+                </p>
+              </div>
+            ))}
+
+            {/* Bottom fade */}
+            <div
+              className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+              style={{ background: "linear-gradient(transparent, #1E272C)" }}
+            />
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="px-8 md:px-12 py-20 max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            {/* Features section heading */}
+            <h2 className="display text-4xl md:text-5xl tracking-tight mb-3 font-bold">
+              Everything you need,{" "}
+              <span style={{ color: "#607D8B" }}>nothing you don&rsquo;t.</span>
+            </h2>
+            <p
+              className="text-base font-light"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              Built for people who think spatially.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-2xl p-7 transition-all duration-200 cursor-default"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.background =
+                    "rgba(255,255,255,0.055)";
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    "rgba(255,255,255,0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.background =
+                    "rgba(255,255,255,0.03)";
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    "rgba(255,255,255,0.07)";
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                  style={{
+                    background: "rgba(84,110,122,0.18)",
+                    color: "#78909C",
+                  }}
+                >
+                  {f.icon}
+                </div>
+                {/* Feature card titles */}
+                <h3 className="display text-lg mb-2 tracking-tight font-semibold">
+                  {f.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed font-light"
+                  style={{ color: "rgba(255,255,255,0.4)" }}
+                >
+                  {f.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="px-8 md:px-12 pb-24 max-w-6xl mx-auto">
+          <div
+            className="rounded-3xl p-16 text-center"
+            style={{
+              background: "rgba(84,110,122,0.1)",
+              border: "1px solid rgba(84,110,122,0.2)",
+            }}
+          >
+            {/* CTA heading */}
+            <h2 className="display text-4xl md:text-5xl tracking-tight mb-4 leading-tight font-bold">
+              Ready to think differently?
+            </h2>
+            <p
+              className="text-base font-light mb-9"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              Open the canvas and place your first note.
+            </p>
             <Link
-              href="/canvas"
-              className="flex items-center gap-2.5 px-9 py-4 rounded-2xl text-base font-semibold text-white transition-all active:scale-95"
+              href="/demo"
+              className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-lg font-semibold text-white transition-all active:scale-95"
               style={{ backgroundColor: "#546E7A" }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
@@ -288,10 +517,10 @@ export default function LandingPage() {
                   "translateY(0)";
               }}
             >
-              Try it free
+              Open Grid Notes
               <svg
-                width="16"
-                height="16"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -302,248 +531,135 @@ export default function LandingPage() {
                 <polyline points="12,5 19,12 12,19" />
               </svg>
             </Link>
-            <span
-              className="text-sm font-light"
-              style={{ color: "rgba(255,255,255,0.25)" }}
-            >
-              No account required
-            </span>
           </div>
-        </div>
+        </section>
 
-        {/* Canvas preview */}
-        <div
-          className={`fade-up relative z-10 mt-16 rounded-2xl overflow-hidden ${heroVisible ? "visible" : ""}`}
-          style={{
-            height: 420,
-            backgroundColor: "#1E272C",
-            border: "1px solid rgba(255,255,255,0.08)",
-            transitionDelay: "200ms",
-          }}
+        {/* Footer */}
+        {/* Footer */}
+        <footer
+          className="px-8 md:px-12 pt-12 pb-8 mt-4"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
         >
-          {/* Grid inside preview */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)
-            `,
-              backgroundSize: "48px 48px",
-            }}
-          />
-
-          {/* Connector lines */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <defs>
-              <marker
-                id="arr"
-                viewBox="0 0 10 10"
-                refX="8"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
-                orient="auto"
-              >
-                <path
-                  d="M2 2L8 5L2 8"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.2)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </marker>
-            </defs>
-            <path
-              d="M 260 145 C 260 195 310 195 310 255"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="1.5"
-              markerEnd="url(#arr)"
-            />
-            <path
-              d="M 505 100 C 505 160 550 160 550 200"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="1.5"
-              markerEnd="url(#arr)"
-            />
-          </svg>
-
-          {/* Demo notes */}
-          {DEMO_NOTES.map((note) => (
-            <div
-              key={note.id}
-              className="note-in absolute rounded-[10px] overflow-hidden"
-              style={{
-                left: note.x,
-                top: note.y,
-                width: note.w,
-                height: note.h,
-                backgroundColor: note.color,
-                opacity: notesVisible ? 1 : 0,
-                transform: notesVisible
-                  ? "translateY(0) scale(1)"
-                  : "translateY(16px) scale(0.96)",
-                transitionDelay: `${note.delay}ms`,
-                padding: "10px 12px",
-              }}
-            >
-              <p className="text-white text-[13px] font-bold mb-1.5 truncate">
-                {note.title}
-              </p>
-              <p
-                className="text-[11.5px] leading-relaxed overflow-hidden"
-                style={{
-                  color: "rgba(255,255,255,0.65)",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 4,
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                {note.text}
-              </p>
-            </div>
-          ))}
-
-          {/* Bottom fade */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-            style={{ background: "linear-gradient(transparent, #1E272C)" }}
-          />
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="px-8 md:px-12 py-20 max-w-6xl mx-auto">
-        <div className="text-center mb-14">
-          <h2 className="serif text-4xl md:text-5xl tracking-tight mb-3">
-            Everything you need,{" "}
-            <span className="italic" style={{ color: "#607D8B" }}>
-              nothing you don&rsquo;t.
-            </span>
-          </h2>
-          <p
-            className="text-base font-light"
-            style={{ color: "rgba(255,255,255,0.4)" }}
-          >
-            Built for people who think spatially.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="rounded-2xl p-7 transition-all duration-200 cursor-default"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.background =
-                  "rgba(255,255,255,0.055)";
-                (e.currentTarget as HTMLDivElement).style.borderColor =
-                  "rgba(255,255,255,0.12)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.background =
-                  "rgba(255,255,255,0.03)";
-                (e.currentTarget as HTMLDivElement).style.borderColor =
-                  "rgba(255,255,255,0.07)";
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{
-                  background: "rgba(84,110,122,0.18)",
-                  color: "#78909C",
-                }}
-              >
-                {f.icon}
+          <div className="max-w-6xl mx-auto">
+            {/* Top row */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-10 mb-10">
+              {/* Brand */}
+              <div className="flex flex-col gap-3 max-w-xs">
+                <span className="display text-lg font-bold tracking-tight">
+                  Grid Notes
+                </span>
+                <p
+                  className="text-sm font-light leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.35)" }}
+                >
+                  An infinite canvas for your ideas. Place notes anywhere, link
+                  them together, and see the whole picture at once.
+                </p>
               </div>
-              <h3 className="serif text-lg mb-2 tracking-tight">{f.title}</h3>
-              <p
-                className="text-sm leading-relaxed font-light"
-                style={{ color: "rgba(255,255,255,0.4)" }}
-              >
-                {f.desc}
-              </p>
+
+              {/* Links */}
+              <div className="flex flex-wrap gap-12">
+                <div className="flex flex-col gap-3">
+                  <span
+                    className="text-xs font-semibold tracking-widest uppercase"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
+                    Product
+                  </span>
+                  <Link
+                    href="/demo"
+                    className="text-sm font-light transition-colors"
+                    style={{ color: "rgba(255,255,255,0.5)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(255,255,255,0.5)")
+                    }
+                  >
+                    Try the demo
+                  </Link>
+                  {/*                 <a
+      href="https://play.google.com/store"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm font-light transition-colors"
+      style={{ color: "rgba(255,255,255,0.5)" }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.color = "rgba(255,255,255,0.5)")
+      }
+    >
+      Android app ↗
+    </a> */}
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <span
+                    className="text-xs font-semibold tracking-widest uppercase"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
+                    Legal
+                  </span>
+                  <Link
+                    href="/privacy"
+                    className="text-sm font-light transition-colors"
+                    style={{ color: "rgba(255,255,255,0.5)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(255,255,255,0.5)")
+                    }
+                  >
+                    Privacy policy
+                  </Link>
+                  <Link
+                    href="/terms"
+                    className="text-sm font-light transition-colors"
+                    style={{ color: "rgba(255,255,255,0.5)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(255,255,255,0.5)")
+                    }
+                  >
+                    Terms of service
+                  </Link>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <span
+                    className="text-xs font-semibold tracking-widest uppercase"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
+                    Connect
+                  </span>
+                  <a
+                    href="mailto:info@gridnoteapp.com"
+                    className="text-sm font-light transition-colors"
+                    style={{ color: "rgba(255,255,255,0.5)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(255,255,255,0.5)")
+                    }
+                  >
+                    Contact us
+                  </a>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* CTA */}
-      <section className="px-8 md:px-12 pb-24 max-w-6xl mx-auto">
-        <div
-          className="rounded-3xl p-16 text-center"
-          style={{
-            background: "rgba(84,110,122,0.1)",
-            border: "1px solid rgba(84,110,122,0.2)",
-          }}
-        >
-          <h2 className="serif text-4xl md:text-5xl tracking-tight mb-4 leading-tight">
-            Ready to think differently?
-          </h2>
-          <p
-            className="text-base font-light mb-9"
-            style={{ color: "rgba(255,255,255,0.4)" }}
-          >
-            Open the canvas and place your first note.
-          </p>
-          <Link
-            href="/canvas"
-            className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-lg font-semibold text-white transition-all active:scale-95"
-            style={{ backgroundColor: "#546E7A" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
-                "#607D8B";
-              (e.currentTarget as HTMLAnchorElement).style.transform =
-                "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
-                "#546E7A";
-              (e.currentTarget as HTMLAnchorElement).style.transform =
-                "translateY(0)";
-            }}
-          >
-            Open Grid Notes
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
+            {/* Bottom row */}
+            <div
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
             >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12,5 19,12 12,19" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer
-        className="flex items-center justify-between flex-wrap gap-3 px-8 md:px-12 py-7"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <span
-          className="serif text-base"
-          style={{ color: "rgba(255,255,255,0.3)" }}
-        >
-          Grid Notes
-        </span>
-        <span
-          className="text-sm font-light"
-          style={{ color: "rgba(255,255,255,0.2)" }}
-        >
-          No tracking. No ads. No cloud.
-        </span>
-      </footer>
-    </div>
+              <span
+                className="text-xs font-light"
+                style={{ color: "rgba(255,255,255,0.2)" }}
+              >
+                © {new Date().getFullYear()} Grid Notes. All rights reserved.
+              </span>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
   );
 }
