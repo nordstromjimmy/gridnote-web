@@ -7,8 +7,8 @@ import JsonLd from "@/components/JsonLd";
 const DEMO_NOTES = [
   {
     id: 1,
-    title: "Q4 Roadmap",
-    text: "Finalize feature list and assign owners before end of month.",
+    title: "Europe trip",
+    text: "Rome → Florence → Amsterdam. Book trains early. Check visa for last stop.",
     color: "#3D5A47",
     x: 60,
     y: 80,
@@ -18,8 +18,8 @@ const DEMO_NOTES = [
   },
   {
     id: 2,
-    title: "Design Review",
-    text: "Update component library and review spacing tokens.",
+    title: "Book ideas",
+    text: "The story starts with a letter found in an old house. Narrator doesn't know who wrote it.",
     color: "#4A3F5C",
     x: 310,
     y: 40,
@@ -29,10 +29,10 @@ const DEMO_NOTES = [
   },
   {
     id: 3,
-    title: "Standup Notes",
-    text: "Blocked on API — need credentials from backend team.",
-    color: "#38464F",
-    x: 550,
+    title: "Grocery run",
+    text: "Olive oil, sourdough, parmesan, cherry tomatoes, basil, pine nuts.",
+    color: "#2E4A4A",
+    x: 555,
     y: 90,
     w: 195,
     h: 115,
@@ -40,8 +40,8 @@ const DEMO_NOTES = [
   },
   {
     id: 4,
-    title: "Ideas",
-    text: "Infinite scroll, keyboard nav, dark mode toggle.",
+    title: "Home renovation",
+    text: "Kitchen: new handles + repaint. Living room: replace ceiling light. Get quotes by March.",
     color: "#5C3F3F",
     x: 140,
     y: 255,
@@ -51,8 +51,8 @@ const DEMO_NOTES = [
   },
   {
     id: 5,
-    title: "Reading List",
-    text: "A Pattern Language — Christopher Alexander",
+    title: "Morning routine",
+    text: "Wake 6:30 · journal · stretch · no phone until 8am.",
     color: "#4A4A2E",
     x: 400,
     y: 230,
@@ -62,9 +62,9 @@ const DEMO_NOTES = [
   },
   {
     id: 6,
-    title: "Sprint 12",
-    text: "Auth, canvas perf, export — ship by Friday.",
-    color: "#2E4A4A",
+    title: "Gift ideas — Sarah",
+    text: "Pottery class voucher, linen throw in sage, the Ottolenghi cookbook.",
+    color: "#38464F",
     x: 620,
     y: 260,
     w: 175,
@@ -220,8 +220,8 @@ export default function LandingPage() {
       `}</style>
 
         {/* Nav */}
-        <nav className="flex items-center justify-end px-8 md:px-12 py-6 relative z-10">
-          <Link
+        <nav className="flex items-center justify-end px-8 md:px-12 py-12 relative z-10">
+          {/*           <Link
             href="/demo"
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all active:scale-95"
             style={{ backgroundColor: "#546E7A" }}
@@ -232,8 +232,8 @@ export default function LandingPage() {
               (e.currentTarget.style.backgroundColor = "#546E7A")
             }
           >
-            Open canvas
-          </Link>
+            Try it now
+          </Link> */}
         </nav>
 
         {/* Hero */}
@@ -354,7 +354,7 @@ export default function LandingPage() {
                     ? "translateY(0) scale(1)"
                     : "translateY(16px) scale(0.96)",
                   transitionDelay: `${note.delay}ms`,
-                  padding: "10px 12px",
+                  padding: "12px 12px",
                 }}
               >
                 <p className="text-white text-[13px] font-bold mb-1.5 truncate">
@@ -363,7 +363,7 @@ export default function LandingPage() {
                 <p
                   className="text-[11.5px] leading-relaxed overflow-hidden"
                   style={{
-                    color: "rgba(255,255,255,0.65)",
+                    color: "rgba(255,255,255,0.75)",
                     display: "-webkit-box",
                     WebkitLineClamp: 4,
                     WebkitBoxOrient: "vertical",
@@ -376,7 +376,7 @@ export default function LandingPage() {
 
             {/* Bottom fade */}
             <div
-              className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+              className="absolute bottom-0 left-0 right-0 h-4 pointer-events-none"
               style={{ background: "linear-gradient(transparent, #1E272C)" }}
             />
           </div>
@@ -480,7 +480,7 @@ export default function LandingPage() {
                   "translateY(0)";
               }}
             >
-              Open Grid Notes
+              Try Grid Notes
               <svg
                 width="18"
                 height="18"

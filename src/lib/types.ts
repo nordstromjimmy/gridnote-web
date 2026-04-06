@@ -9,6 +9,9 @@ export interface Note {
   colorValue: string;
   pinned: boolean;
   imagePaths: string[];
+  videoPaths: [];
+  videoThumbPaths: [];
+  pdfPaths: [];
   createdAt: string;
   updatedAt: string;
 }

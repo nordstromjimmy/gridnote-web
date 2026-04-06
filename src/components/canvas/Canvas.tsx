@@ -29,6 +29,9 @@ import LabelNode from "./LabelNode";
 import AddLabelButton from "./AddLabelButton";
 import LabelDialog from "../dialogs/LabelDialog";
 import CanvasHelp from "./CanvasHelp";
+import { useAuthStore } from "@/store/authStore";
+import AuthButton from "./AuthButton";
+import AuthDialog from "./AuthDialog";
 
 function noteToNode(note: Note, onOpen: (note: Note) => void): Node {
   return {
@@ -87,6 +90,15 @@ function CanvasInner() {
 
   const nodeTypes = { note: NoteNode, label: LabelNode };
 
+  const [authOpen, setAuthOpen] = useState(false);
+  const { init: initAuth, user } = useAuthStore();
+  const {
+    init: initNotes,
+    setUserId,
+    subscribeToRealtime,
+    unsubscribeFromRealtime,
+  } = useNoteStore();
+
   // Define handleNoteOpen before the useEffect that references it.
   const handleNoteOpen = useCallback(
     (note: Note) => {
@@ -103,6 +115,28 @@ function CanvasInner() {
     },
     [setNodes],
   );
+
+  //  auth effect:
+  useEffect(() => {
+    const setup = async () => {
+      await initAuth();
+      const currentUser = useAuthStore.getState().user;
+      setUserId(currentUser?.id ?? null);
+      await initNotes();
+      if (currentUser) subscribeToRealtime();
+    };
+    setup();
+  }, []);
+
+  // Watch for auth changes (sign in / sign out):
+  useEffect(() => {
+    setUserId(user?.id ?? null);
+    if (user) {
+      subscribeToRealtime();
+    } else {
+      unsubscribeFromRealtime();
+    }
+  }, [user, setUserId, subscribeToRealtime, unsubscribeFromRealtime]);
 
   // Single effect — syncs store notes to ReactFlow nodes.
   useEffect(() => {
@@ -261,6 +295,10 @@ function CanvasInner() {
           color="rgba(255,255,255,0.06)"
         />
         <CanvasControls />
+
+        <AuthButton onOpen={() => setAuthOpen(true)} />
+
+        <AuthDialog open={authOpen} onClose={() => setAuthOpen(false)} />
 
         <MiniMap
           position="bottom-left"
