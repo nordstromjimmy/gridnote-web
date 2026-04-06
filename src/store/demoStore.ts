@@ -83,6 +83,9 @@ export const useDemoStore = create<DemoStore>((set, get) => ({
       colorValue: input.colorValue || DEFAULT_COLOR,
       pinned: false,
       imagePaths: [],
+      videoPaths: [],
+      videoThumbPaths: [],
+      pdfPaths: [],
       createdAt: now,
       updatedAt: now,
     };
