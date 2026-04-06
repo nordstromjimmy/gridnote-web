@@ -95,14 +95,15 @@ export default function NoteDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
       onKeyDown={handleKeyDown}
     >
       <div
-        className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+        className="w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden"
         style={{
           backgroundColor: "#263238",
+          border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
         {/* Header */}

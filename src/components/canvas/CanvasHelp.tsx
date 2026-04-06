@@ -16,7 +16,7 @@ export default function CanvasHelp() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2">
       {/* Trigger pill */}
       <button
         onClick={() => setOpen((o) => !o)}

@@ -37,6 +37,19 @@ export const metadata: Metadata = {
     canonical: BASE_URL,
   },
 
+  themeColor: "#1E272C",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Grid Notes",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+
   // Open Graph — controls Facebook, LinkedIn, Discord previews
   openGraph: {
     type: "website",

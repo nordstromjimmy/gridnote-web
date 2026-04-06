@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 
+@media (max-width: 640px) {
+  :root {
+    --minimap-display: none;
+  }
+}
+
 html,
 body {
   height: 100%;

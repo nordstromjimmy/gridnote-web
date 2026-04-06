@@ -311,6 +311,7 @@ function CanvasInner() {
             backgroundColor: "#1A2530",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
+            display: "var(--minimap-display, block)",
           }}
           nodeStrokeWidth={0}
           pannable

@@ -8,8 +8,8 @@ export default function AddNoteButton({ onAdd }: AddNoteButtonProps) {
   return (
     <button
       onClick={onAdd}
-      className="flex items-center gap-2 px-5 py-3 rounded-2xl text-white text-sm font-semibold shadow-lg transition-all active:scale-95"
-      style={{ backgroundColor: "#546E7A" }}
+      className="flex items-center gap-2 px-5 py-3.5 md:py-3 rounded-2xl text-white text-sm font-semibold shadow-lg transition-all active:scale-95"
+      style={{ backgroundColor: "#546E7A", minWidth: 44, minHeight: 44 }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#607D8B")}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#546E7A")}
     >
@@ -25,7 +25,8 @@ export default function AddNoteButton({ onAdd }: AddNoteButtonProps) {
         <line x1="12" y1="5" x2="12" y2="19" />
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
-      New note
+      <span className="hidden sm:inline">New note</span>
+      <span className="sm:hidden">Note</span>
     </button>
   );
 }

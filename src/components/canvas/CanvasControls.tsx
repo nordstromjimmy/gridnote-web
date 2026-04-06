@@ -6,24 +6,24 @@ export default function CanvasControls() {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
 
   return (
-    <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-10">
+    <div className="absolute bottom-6 right-4 flex flex-col gap-2 z-10">
       <button
         onClick={() => zoomIn()}
-        className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-lg font-light transition-colors"
+        className="w-10 h-10 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-white text-lg font-light transition-colors"
         style={{ backgroundColor: "#263238" }}
       >
         +
       </button>
       <button
         onClick={() => zoomOut()}
-        className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-lg font-light transition-colors"
+        className="w-10 h-10 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-white text-lg font-light transition-colors"
         style={{ backgroundColor: "#263238" }}
       >
         −
       </button>
       <button
         onClick={() => fitView({ padding: 0.2 })}
-        className="w-9 h-9 rounded-lg flex items-center justify-center text-white transition-colors"
+        className="w-10 h-10 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-white transition-colors"
         style={{ backgroundColor: "#263238" }}
       >
         <svg
