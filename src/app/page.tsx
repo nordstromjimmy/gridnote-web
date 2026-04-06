@@ -338,43 +338,6 @@ export default function LandingPage() {
               }}
             />
 
-            {/* Connector lines */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              <defs>
-                <marker
-                  id="arr"
-                  viewBox="0 0 10 10"
-                  refX="8"
-                  refY="5"
-                  markerWidth="6"
-                  markerHeight="6"
-                  orient="auto"
-                >
-                  <path
-                    d="M2 2L8 5L2 8"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.2)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </marker>
-              </defs>
-              <path
-                d="M 260 145 C 260 195 310 195 310 255"
-                fill="none"
-                stroke="rgba(255,255,255,0.2)"
-                strokeWidth="1.5"
-                markerEnd="url(#arr)"
-              />
-              <path
-                d="M 505 100 C 505 160 550 160 550 200"
-                fill="none"
-                stroke="rgba(255,255,255,0.2)"
-                strokeWidth="1.5"
-                markerEnd="url(#arr)"
-              />
-            </svg>
-
             {/* Demo notes */}
             {DEMO_NOTES.map((note) => (
               <div
