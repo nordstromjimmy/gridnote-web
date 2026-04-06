@@ -105,7 +105,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={outfit.variable}>{children}</body>
+      <body className={outfit.variable}>
+        {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+              });
+            }
+          `,
+          }}
+        />
+      </body>
     </html>
   );
 }

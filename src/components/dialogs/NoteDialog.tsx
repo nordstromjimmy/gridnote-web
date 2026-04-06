@@ -106,8 +106,16 @@ export default function NoteDialog({
           border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
+        {/* Drag handle pill — mobile only */}
+        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div
+            className="w-10 h-1 rounded-full"
+            style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+          />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center gap-2 px-5 pt-5 pb-3">
+        <div className="flex items-center gap-2 px-5 pt-4 pb-3">
           <div
             className="w-2.5 h-2.5 rounded-full shrink-0"
             style={{ backgroundColor: note.colorValue }}
@@ -157,8 +165,11 @@ export default function NoteDialog({
           )}
         </div>
 
-        {/* Content */}
-        <div className="px-5 pb-2 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+        {/* Scrollable content */}
+        <div
+          className="px-5 pb-2 flex flex-col gap-4 overflow-y-auto"
+          style={{ maxHeight: "70vh" }}
+        >
           {editing ? (
             <>
               {/* Title field */}
@@ -259,7 +270,6 @@ export default function NoteDialog({
             </>
           ) : (
             <>
-              {/* View mode */}
               {note.title && (
                 <h3 className="text-white font-bold text-lg m-0 leading-snug">
                   {note.title}
@@ -313,9 +323,15 @@ export default function NoteDialog({
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions — safe area padding for iPhone home indicator */}
         {!confirmDelete && (
-          <div className="flex items-center justify-between px-5 pb-5 pt-2">
+          <div
+            className="flex items-center justify-between px-5 pt-3"
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+              paddingBottom: "max(16px, env(safe-area-inset-bottom))",
+            }}
+          >
             {editing ? (
               <>
                 <button
