@@ -9,6 +9,7 @@ interface NoteDialogProps {
   onClose: () => void;
   onSave: (id: string, changes: Partial<Note>) => void;
   onDelete: (id: string) => void;
+  isOwner?: boolean;
 }
 
 export default function NoteDialog({
@@ -16,6 +17,7 @@ export default function NoteDialog({
   onClose,
   onSave,
   onDelete,
+  isOwner = true,
 }: NoteDialogProps) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState("");
@@ -105,6 +107,8 @@ export default function NoteDialog({
           backgroundColor: "#263238",
           border: "1px solid rgba(255,255,255,0.08)",
         }}
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Drag handle pill — mobile only */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
@@ -142,7 +146,7 @@ export default function NoteDialog({
               </svg>
             </button>
           )}
-          {!editing && (
+          {!editing && isOwner !== false && (
             <button
               onClick={() => setConfirmDelete(true)}
               className="p-1.5 rounded-lg transition-colors hover:bg-white/10"

@@ -14,6 +14,7 @@ interface LabelDialogProps {
   onClose: () => void;
   onSave: (id: string, text: string, fontSize: "sm" | "md" | "lg") => void;
   onDelete: (id: string) => void;
+  isOwner?: boolean;
 }
 
 export default function LabelDialog({
@@ -21,6 +22,7 @@ export default function LabelDialog({
   onClose,
   onSave,
   onDelete,
+  isOwner = true,
 }: LabelDialogProps) {
   const [text, setText] = useState("");
   const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
@@ -74,6 +76,8 @@ export default function LabelDialog({
           backgroundColor: "#263238",
           border: "1px solid rgba(255,255,255,0.08)",
         }}
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center gap-2 px-5 pt-5 pb-3">
@@ -91,25 +95,27 @@ export default function LabelDialog({
           <span className="flex-1 text-white font-semibold text-base">
             Label
           </span>
-          <button
-            onClick={() => setConfirmDelete(true)}
-            className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
-            title="Delete"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#ef5350"
-              strokeWidth="2"
+          {isOwner && (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+              title="Delete"
             >
-              <polyline points="3,6 5,6 21,6" />
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <path d="M10 11v6M14 11v6" />
-              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ef5350"
+                strokeWidth="2"
+              >
+                <polyline points="3,6 5,6 21,6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Content */}

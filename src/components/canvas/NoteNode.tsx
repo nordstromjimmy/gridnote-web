@@ -15,6 +15,7 @@ function NoteNode({ data, selected }: NodeProps) {
   const { togglePin, resizeNote } = useNoteStore();
   const note = data.note as Note;
   const onOpen = data.onOpen as ((note: Note) => void) | undefined;
+  const isOwner = (data.isOwner as boolean) ?? true;
   const connection = useConnection();
 
   // Show handles when selected OR when a connection is being dragged.

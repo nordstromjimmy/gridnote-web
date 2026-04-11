@@ -51,6 +51,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
       {/* Search trigger button */}
       <button
         onClick={handleOpen}
+        onPointerDown={(e) => e.stopPropagation()}
         className="absolute bottom-48 md:bottom-40 right-4 z-10 w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95"
         style={{ backgroundColor: "#263238" }}
         title="Search notes"
@@ -80,6 +81,8 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           <div
             className="w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
             style={{ backgroundColor: "#263238" }}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             {/* Input */}
             <div

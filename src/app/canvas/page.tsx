@@ -18,35 +18,13 @@ export default function CanvasPage() {
       {/* Back to landing */}
       <Link
         href="/"
+        className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-2 rounded-xl
+    text-xs font-medium transition-colors"
         style={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-          zIndex: 20,
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          background: "rgba(38,50,56,0.9)",
+          backgroundColor: "rgba(38,50,56,0.9)",
           border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 10,
-          padding: "8px 14px",
           color: "rgba(255,255,255,0.55)",
-          fontSize: 13,
-          fontWeight: 500,
-          textDecoration: "none",
           backdropFilter: "blur(8px)",
-          transition: "color 0.15s, border-color 0.15s",
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
-          (e.currentTarget as HTMLAnchorElement).style.borderColor =
-            "rgba(255,255,255,0.2)";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLAnchorElement).style.color =
-            "rgba(255,255,255,0.55)";
-          (e.currentTarget as HTMLAnchorElement).style.borderColor =
-            "rgba(255,255,255,0.08)";
         }}
       >
         <svg
@@ -57,11 +35,12 @@ export default function CanvasPage() {
           stroke="currentColor"
           strokeWidth="2.5"
           strokeLinecap="round"
+          className="shrink-0"
         >
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12,19 5,12 12,5" />
         </svg>
-        Grid Notes
+        <span className="hidden sm:inline">Grid Notes</span>
       </Link>
     </main>
   );

@@ -32,13 +32,22 @@ import CanvasHelp from "./CanvasHelp";
 import { useAuthStore } from "@/store/authStore";
 import AuthButton from "./AuthButton";
 import AuthDialog from "./AuthDialog";
+import { useSearchParams } from "next/navigation";
+import { useSharedCanvasStore } from "@/store/sharedCanvasStore";
+import CanvasSwitcher from "./CanvasSwitcher";
 
-function noteToNode(note: Note, onOpen: (note: Note) => void): Node {
+const nodeTypes = { note: NoteNode, label: LabelNode };
+
+function noteToNode(
+  note: Note,
+  onOpen: (note: Note) => void,
+  isOwner: boolean,
+): Node {
   return {
     id: note.id,
     type: "note",
     position: { x: note.x, y: note.y },
-    data: { note, onOpen },
+    data: { note, onOpen, isOwner },
     draggable: !note.pinned,
     style: { width: note.width, height: note.height },
   };
@@ -75,31 +84,34 @@ function CanvasInner() {
     resizeLabel,
     addEdge: addStoredEdge,
     deleteEdge,
-  } = useNoteStore();
-
-  const { screenToFlowPosition, setCenter } = useReactFlow();
-
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [selectedLabel, setSelectedLabel] = useState<NoteLabel | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const pendingPosition = useRef<{ x: number; y: number } | null>(null);
-  const isDragging = useRef(false);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-
-  const nodeTypes = { note: NoteNode, label: LabelNode };
-
-  const [authOpen, setAuthOpen] = useState(false);
-  const { init: initAuth, user } = useAuthStore();
-  const {
     init: initNotes,
     setUserId,
     subscribeToRealtime,
     unsubscribeFromRealtime,
   } = useNoteStore();
 
-  // Define handleNoteOpen before the useEffect that references it.
+  const { screenToFlowPosition, setCenter } = useReactFlow();
+  const { init: initAuth, user } = useAuthStore();
+  const searchParams = useSearchParams();
+  const { activeCanvasId, canvases, setActiveCanvas, loadCanvases } =
+    useSharedCanvasStore();
+  const activeCanvas = canvases.find((c) => c.id === activeCanvasId);
+
+  const isOwner =
+    !activeCanvasId ||
+    canvases.length === 0 ||
+    activeCanvas?.ownerId === user?.id;
+
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<NoteLabel | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const pendingPosition = useRef<{ x: number; y: number } | null>(null);
+  const isDragging = useRef(false);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
   const handleNoteOpen = useCallback(
     (note: Note) => {
       setNodes((nds) => nds.map((n) => ({ ...n, selected: false })));
@@ -116,37 +128,54 @@ function CanvasInner() {
     [setNodes],
   );
 
-  //  auth effect:
+  // Auth + init on mount
   useEffect(() => {
     const setup = async () => {
       await initAuth();
       const currentUser = useAuthStore.getState().user;
       setUserId(currentUser?.id ?? null);
-      await initNotes();
-      if (currentUser) subscribeToRealtime();
+
+      if (currentUser) {
+        // Load canvases before init so isOwner is correct
+        await loadCanvases(currentUser.id);
+        subscribeToRealtime();
+      }
+
+      const sharedId = searchParams.get("shared");
+      if (sharedId) setActiveCanvas(sharedId);
+      await initNotes(sharedId ?? undefined);
     };
     setup();
   }, []);
 
-  // Watch for auth changes (sign in / sign out):
+  // Watch for auth changes
   useEffect(() => {
     setUserId(user?.id ?? null);
     if (user) {
       subscribeToRealtime();
     } else {
       unsubscribeFromRealtime();
+      // Switch back to personal canvas when logged out
+      setActiveCanvas(null);
+      initNotes(undefined);
     }
-  }, [user, setUserId, subscribeToRealtime, unsubscribeFromRealtime]);
+  }, [
+    user,
+    setUserId,
+    subscribeToRealtime,
+    unsubscribeFromRealtime,
+    setActiveCanvas,
+    initNotes,
+  ]);
 
-  // Single effect — syncs store notes to ReactFlow nodes.
+  // Sync notes + labels to ReactFlow nodes
   useEffect(() => {
-    if (isDragging.current) return;
-    const noteNodes = notes.map((n) => noteToNode(n, handleNoteOpen));
+    const noteNodes = notes.map((n) => noteToNode(n, handleNoteOpen, isOwner));
     const labelNodes = labels.map((l) => labelToNode(l, handleLabelOpen));
     setNodes([...noteNodes, ...labelNodes]);
-  }, [notes, labels, setNodes, handleNoteOpen, handleLabelOpen]);
+  }, [notes, labels, setNodes, handleNoteOpen, handleLabelOpen, isOwner]);
 
-  // Sync stored edges to ReactFlow edges.
+  // Sync edges
   useEffect(() => {
     setEdges(
       storedEdges.map((e) => ({
@@ -168,6 +197,30 @@ function CanvasInner() {
     );
   }, [storedEdges, setEdges]);
 
+  /*   useEffect(() => {
+    const handler = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      // If the click is on a fixed/absolute overlay (dialog, panel, button outside RF)
+      // stop it from reaching ReactFlow's document-level listeners
+      const rfContainer = document.querySelector(".react-flow");
+      if (rfContainer && !rfContainer.contains(target)) {
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("pointerdown", handler, true);
+    return () => document.removeEventListener("pointerdown", handler, true);
+  }, []); */
+
+  const handleSwitchCanvas = useCallback(
+    async (canvasId: string | null) => {
+      setActiveCanvas(canvasId);
+      await initNotes(canvasId ?? undefined);
+      // Re-subscribe with new canvas filter
+      subscribeToRealtime();
+    },
+    [initNotes, setActiveCanvas, subscribeToRealtime],
+  );
+
   const onNodeDragStart = useCallback(() => {
     isDragging.current = true;
   }, []);
@@ -176,7 +229,6 @@ function CanvasInner() {
     (_: React.MouseEvent, __: Node, draggedNodes: Node[]) => {
       isDragging.current = false;
       draggedNodes.forEach((n) => {
-        // Check if it's a label or a note by looking at the type.
         if (n.type === "label") {
           moveLabel(n.id, n.position.x, n.position.y);
         } else {
@@ -296,10 +348,6 @@ function CanvasInner() {
         />
         <CanvasControls />
 
-        <AuthButton onOpen={() => setAuthOpen(true)} />
-
-        <AuthDialog open={authOpen} onClose={() => setAuthOpen(false)} />
-
         <MiniMap
           position="bottom-left"
           nodeColor={(node) => {
@@ -307,11 +355,11 @@ function CanvasInner() {
             return note?.colorValue ?? "#38464F";
           }}
           maskColor="rgba(0,0,0,0.6)"
+          className="hidden sm:block"
           style={{
             backgroundColor: "#1A2530",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
-            display: "var(--minimap-display, block)",
           }}
           nodeStrokeWidth={0}
           pannable
@@ -319,30 +367,45 @@ function CanvasInner() {
         />
       </ReactFlow>
 
-      <CanvasHelp />
+      <AuthButton onOpen={() => setAuthOpen(true)} />
+
+      {/* Top center — canvas switcher + help (help hidden on mobile) */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        <div className="hidden sm:flex">
+          <CanvasHelp />
+        </div>
+        <CanvasSwitcher
+          activeCanvasId={activeCanvasId}
+          onSwitch={handleSwitchCanvas}
+        />
+      </div>
+
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3">
         <AddNoteButton onAdd={handleAddNote} />
         <AddLabelButton onAdd={handleAddLabel} />
       </div>
+
       <SearchBar onSelect={handleSearchSelect} />
 
+      <AuthDialog open={authOpen} onClose={() => setAuthOpen(false)} />
       <CreateNoteDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onConfirm={handleCreateConfirm}
       />
-
       <NoteDialog
         note={selectedNote}
         onClose={() => setSelectedNote(null)}
         onSave={handleSave}
         onDelete={deleteNote}
+        isOwner={isOwner}
       />
       <LabelDialog
         label={selectedLabel}
         onClose={() => setSelectedLabel(null)}
         onSave={handleLabelSave}
         onDelete={deleteLabel}
+        isOwner={isOwner}
       />
     </div>
   );

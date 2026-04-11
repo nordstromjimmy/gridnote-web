@@ -8,9 +8,9 @@ const db = new Dexie("GridNotesDB") as Dexie & {
 };
 
 db.version(2).stores({
-  notes: "id, updatedAt, pinned",
-  edges: "id, source, target",
-  labels: "id, updatedAt",
+  notes: "id, updatedAt, pinned, canvasId",
+  edges: "id, source, target, canvasId",
+  labels: "id, updatedAt, canvasId",
 });
 
 export { db };

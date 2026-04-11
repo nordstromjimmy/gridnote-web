@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SHORTCUTS = [
   { keys: ["Click"], desc: "Open note" },
@@ -14,12 +14,24 @@ const SHORTCUTS = [
 
 export default function CanvasHelp() {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2">
-      {/* Trigger pill */}
+    <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
+        onPointerDown={(e) => e.stopPropagation()}
         className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all"
         style={{
           backgroundColor: open ? "#263238" : "rgba(38,50,56,0.85)",
@@ -27,14 +39,6 @@ export default function CanvasHelp() {
           color: "rgba(255,255,255,0.55)",
           backdropFilter: "blur(8px)",
         }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.color = "rgba(255,255,255,0.85)")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.color = open
-            ? "rgba(255,255,255,0.85)"
-            : "rgba(255,255,255,0.55)")
-        }
       >
         <svg
           width="12"
@@ -67,15 +71,17 @@ export default function CanvasHelp() {
         </svg>
       </button>
 
-      {/* Dropdown panel */}
+      {/* Dropdown — positioned below the button, left-aligned to it */}
       {open && (
         <div
-          className="rounded-2xl py-3 px-1 min-w-[280px]"
+          className="absolute top-full left-0 mt-2 rounded-2xl py-3 px-1 min-w-[280px]"
           style={{
             backgroundColor: "#263238",
             border: "1px solid rgba(255,255,255,0.08)",
-            backdropFilter: "blur(12px)",
+            zIndex: 50,
           }}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           {SHORTCUTS.map((s, i) => (
             <div
@@ -88,7 +94,6 @@ export default function CanvasHelp() {
                     : "none",
               }}
             >
-              {/* Key badges */}
               <div className="flex items-center gap-1">
                 {s.keys.map((k, j) => (
                   <span key={j} className="flex items-center gap-1">
@@ -113,8 +118,6 @@ export default function CanvasHelp() {
                   </span>
                 ))}
               </div>
-
-              {/* Description */}
               <span
                 className="text-xs ml-4 text-right"
                 style={{ color: "rgba(255,255,255,0.45)" }}

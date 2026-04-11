@@ -67,6 +67,8 @@ export default function CreateNoteDialog({
           backgroundColor: "#263238",
           border: "1px solid rgba(255,255,255,0.08)",
         }}
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Drag handle pill — visual cue on mobile */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">

@@ -5,6 +5,7 @@ import type { Note, NoteEdge, CreateNoteInput, NoteLabel } from "@/lib/types";
 import { useAuthStore } from "./authStore";
 import * as sync from "@/lib/syncService";
 import { supabase } from "@/lib/supabase";
+import { useSharedCanvasStore } from "./sharedCanvasStore";
 
 const DEFAULT_WIDTH = 200;
 const DEFAULT_HEIGHT = 140;
@@ -20,7 +21,7 @@ interface NoteStore {
   unsubscribeFromRealtime: () => void;
 
   setUserId: (id: string | null) => void;
-  init: () => Promise<void>;
+  init: (canvasId?: string) => Promise<void>;
 
   addNote: (input: CreateNoteInput) => Promise<Note>;
   updateNote: (id: string, changes: Partial<Note>) => Promise<void>;
@@ -71,6 +72,34 @@ function mergeEdges(local: NoteEdge[], remote: NoteEdge[]): NoteEdge[] {
   return Array.from(map.values());
 }
 
+// Safely convert an unknown value to string[]
+function toStringArray(val: unknown): string[] {
+  if (Array.isArray(val)) return val as string[];
+  return [];
+}
+
+function mapRowToNote(row: Record<string, unknown>): Note {
+  return {
+    id: row.id as string,
+    title: row.title as string,
+    text: row.text as string,
+    x: row.x as number,
+    y: row.y as number,
+    width: row.width as number,
+    height: row.height as number,
+    colorValue: row.color_value as string,
+    pinned: row.pinned as boolean,
+    imagePaths: toStringArray(row.image_paths),
+    videoPaths: toStringArray(row.video_paths),
+    videoThumbPaths: toStringArray(row.video_thumb_paths),
+    pdfPaths: toStringArray(row.pdf_paths),
+    canvasId: (row.canvas_id as string) ?? null,
+    createdBy: (row.created_by as string) ?? null,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
 export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   edges: [],
@@ -80,17 +109,44 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
   setUserId: (id) => set({ userId: id }),
 
-  init: async () => {
-    const [localNotes, localEdges, localLabels] = await Promise.all([
-      db.notes.orderBy("updatedAt").reverse().toArray(),
-      db.edges.toArray(),
-      db.labels.toArray(),
-    ]);
-
+  init: async (canvasId?: string) => {
     const user = useAuthStore.getState().user;
 
+    if (canvasId) {
+      // Shared canvas — always pull fresh from Supabase, never use local cache
+      if (!user) {
+        set({ notes: [], edges: [], labels: [], initialized: true });
+        return;
+      }
+      const remote = await sync.pullAll(user.id, canvasId);
+      // Write to local so realtime updates can be stored
+      await db.notes.bulkPut(remote.notes);
+      await db.edges.bulkPut(remote.edges);
+      await db.labels.bulkPut(remote.labels);
+      set({
+        notes: remote.notes,
+        edges: remote.edges,
+        labels: remote.labels,
+        initialized: true,
+      });
+      return;
+    }
+
+    // Personal canvas — use local cache + merge with remote
+    const [localNotes, localEdges, localLabels] = await Promise.all([
+      db.notes
+        .toArray()
+        .then((notes) =>
+          notes
+            .filter((n) => !n.canvasId)
+            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+        ),
+      db.edges.toArray().then((edges) => edges.filter((e) => !e.canvasId)),
+      db.labels.toArray().then((labels) => labels.filter((l) => !l.canvasId)),
+    ]);
+
     if (user) {
-      const remote = await sync.pullAll(user.id);
+      const remote = await sync.pullAll(user.id, undefined);
 
       const remoteNoteIds = new Set(remote.notes.map((n) => n.id));
       const remoteEdgeIds = new Set(remote.edges.map((e) => e.id));
@@ -103,9 +159,9 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       );
 
       await Promise.all([
-        ...localOnlyNotes.map((n) => sync.pushNote(n, user.id)),
-        ...localOnlyEdges.map((e) => sync.pushEdge(e, user.id)),
-        ...localOnlyLabels.map((l) => sync.pushLabel(l, user.id)),
+        ...localOnlyNotes.map((n: Note) => sync.pushNote(n, user.id)),
+        ...localOnlyEdges.map((e: NoteEdge) => sync.pushEdge(e, user.id)),
+        ...localOnlyLabels.map((l: NoteLabel) => sync.pushLabel(l, user.id)),
       ]);
 
       const mergedNotes = mergeByUpdatedAt(localNotes, remote.notes);
@@ -136,57 +192,71 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     const userId = get().userId;
     if (!userId) return;
 
-    // Remove any existing channels before re-subscribing.
     supabase.removeAllChannels();
+
+    const { activeCanvasId } = useSharedCanvasStore.getState();
+
+    const notesFilter = activeCanvasId
+      ? `canvas_id=eq.${activeCanvasId}`
+      : `user_id=eq.${userId}`;
+    const labelsFilter = activeCanvasId
+      ? `canvas_id=eq.${activeCanvasId}`
+      : `user_id=eq.${userId}`;
+    const edgesFilter = activeCanvasId
+      ? `canvas_id=eq.${activeCanvasId}`
+      : `user_id=eq.${userId}`;
 
     supabase
       .channel("realtime-notes")
       .on(
         "postgres_changes",
         {
-          event: "DELETE",
+          event: "INSERT",
           schema: "public",
           table: "notes",
-          filter: `user_id=eq.${userId}`,
+          filter: notesFilter,
         },
         (payload) => {
-          const id = payload.old.id as string;
-          db.notes.delete(id);
-          set((s) => ({ notes: s.notes.filter((n) => n.id !== id) }));
+          const note = mapRowToNote(payload.new as Record<string, unknown>);
+          db.notes.put(note);
+          set((s) => {
+            const exists = s.notes.some((n) => n.id === note.id);
+            return {
+              notes: exists
+                ? s.notes.map((n) => (n.id === note.id ? note : n))
+                : [...s.notes, note],
+            };
+          });
         },
       )
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "UPDATE",
           schema: "public",
           table: "notes",
-          filter: `user_id=eq.${userId}`,
+          filter: notesFilter,
         },
         (payload) => {
-          const row = payload.new;
-          const note: Note = {
-            id: row.id,
-            title: row.title,
-            text: row.text,
-            x: row.x,
-            y: row.y,
-            width: row.width,
-            height: row.height,
-            colorValue: row.color_value,
-            pinned: row.pinned,
-            imagePaths: row.image_paths ?? [],
-            videoPaths: [],
-            videoThumbPaths: [],
-            pdfPaths: [],
-            createdAt: row.created_at,
-            updatedAt: row.updated_at,
-          };
+          const note = mapRowToNote(payload.new as Record<string, unknown>);
           db.notes.put(note);
-          set((s) => {
-            const exists = s.notes.some((n) => n.id === note.id);
-            return { notes: exists ? s.notes : [...s.notes, note] };
-          });
+          set((s) => ({
+            notes: s.notes.map((n) => (n.id === note.id ? note : n)),
+          }));
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "notes",
+          filter: notesFilter,
+        },
+        (payload) => {
+          const id = (payload.old as Record<string, unknown>).id as string;
+          db.notes.delete(id);
+          set((s) => ({ notes: s.notes.filter((n) => n.id !== id) }));
         },
       )
       .subscribe();
@@ -196,13 +266,74 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       .on(
         "postgres_changes",
         {
+          event: "INSERT",
+          schema: "public",
+          table: "labels",
+          filter: labelsFilter,
+        },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          const label: NoteLabel = {
+            id: row.id as string,
+            text: row.text as string,
+            x: row.x as number,
+            y: row.y as number,
+            width: row.width as number,
+            height: row.height as number,
+            fontSize: (row.font_size as "sm" | "md" | "lg") ?? "md",
+            canvasId: (row.canvas_id as string) ?? null,
+            createdAt: row.created_at as string,
+            updatedAt: row.updated_at as string,
+          };
+          db.labels.put(label);
+          set((s) => {
+            const exists = s.labels.some((l) => l.id === label.id);
+            return {
+              labels: exists
+                ? s.labels.map((l) => (l.id === label.id ? label : l))
+                : [...s.labels, label],
+            };
+          });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "labels",
+          filter: labelsFilter,
+        },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          const label: NoteLabel = {
+            id: row.id as string,
+            text: row.text as string,
+            x: row.x as number,
+            y: row.y as number,
+            width: row.width as number,
+            height: row.height as number,
+            fontSize: (row.font_size as "sm" | "md" | "lg") ?? "md",
+            canvasId: (row.canvas_id as string) ?? null,
+            createdAt: row.created_at as string,
+            updatedAt: row.updated_at as string,
+          };
+          db.labels.put(label);
+          set((s) => ({
+            labels: s.labels.map((l) => (l.id === label.id ? label : l)),
+          }));
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
           event: "DELETE",
           schema: "public",
           table: "labels",
-          filter: `user_id=eq.${userId}`,
+          filter: labelsFilter,
         },
         (payload) => {
-          const id = payload.old.id as string;
+          const id = (payload.old as Record<string, unknown>).id as string;
           db.labels.delete(id);
           set((s) => ({ labels: s.labels.filter((l) => l.id !== id) }));
         },
@@ -217,10 +348,10 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
           event: "DELETE",
           schema: "public",
           table: "edges",
-          filter: `user_id=eq.${userId}`,
+          filter: edgesFilter,
         },
         (payload) => {
-          const id = payload.old.id as string;
+          const id = (payload.old as Record<string, unknown>).id as string;
           db.edges.delete(id);
           set((s) => ({ edges: s.edges.filter((e) => e.id !== id) }));
         },
@@ -235,6 +366,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   // ------------------------------------------------------------------ notes
 
   addNote: async (input) => {
+    const { activeCanvasId } = useSharedCanvasStore.getState();
+    const userId = get().userId;
     const now = new Date().toISOString();
     const note: Note = {
       id: uuidv4(),
@@ -250,12 +383,13 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       videoPaths: [],
       videoThumbPaths: [],
       pdfPaths: [],
+      canvasId: activeCanvasId ?? null,
+      createdBy: userId ?? null,
       createdAt: now,
       updatedAt: now,
     };
     await db.notes.add(note);
     set((s) => ({ notes: [...s.notes, note] }));
-    const userId = get().userId;
     if (userId) await sync.pushNote(note, userId);
     return note;
   },
@@ -348,6 +482,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   // ------------------------------------------------------------------ edges
 
   addEdge: async (source, target, sourceHandle?, targetHandle?) => {
+    const { activeCanvasId } = useSharedCanvasStore.getState();
     const exists = get().edges.some(
       (e) =>
         (e.source === source && e.target === target) ||
@@ -360,6 +495,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       target,
       sourceHandle,
       targetHandle,
+      canvasId: activeCanvasId ?? null,
       createdAt: new Date().toISOString(),
     };
     await db.edges.add(edge);
@@ -378,6 +514,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   // ------------------------------------------------------------------ labels
 
   addLabel: async (x, y) => {
+    const { activeCanvasId } = useSharedCanvasStore.getState();
     const now = new Date().toISOString();
     const label: NoteLabel = {
       id: uuidv4(),
@@ -387,6 +524,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       width: 160,
       height: 40,
       fontSize: "md",
+      canvasId: activeCanvasId ?? null,
       createdAt: now,
       updatedAt: now,
     };

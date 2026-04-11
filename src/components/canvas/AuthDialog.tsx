@@ -17,7 +17,7 @@ export default function AuthDialog({ open, onClose }: AuthDialogProps) {
   const [success, setSuccess] = useState<string | null>(null);
 
   const { signIn, signUp, signOut, user, loading } = useAuthStore();
-  const { init } = useNoteStore();
+  const { init: initNotes, setUserId } = useNoteStore();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -50,8 +50,12 @@ export default function AuthDialog({ open, onClose }: AuthDialogProps) {
       return;
     }
 
-    // Re-init store to pull remote data after sign in
-    await init();
+    // Set userId first, then init so notes load with auth context
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser) {
+      setUserId(currentUser.id);
+      await initNotes();
+    }
     onClose();
   };
 
@@ -74,6 +78,8 @@ export default function AuthDialog({ open, onClose }: AuthDialogProps) {
           backgroundColor: "#263238",
           border: "1px solid rgba(255,255,255,0.08)",
         }}
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-6 pt-6 pb-2">
@@ -137,6 +143,7 @@ export default function AuthDialog({ open, onClose }: AuthDialogProps) {
                 </button>
                 <button
                   onClick={handleSignOut}
+                  onPointerDown={(e) => e.stopPropagation()}
                   className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
                   style={{
                     backgroundColor: "rgba(239,83,80,0.15)",

@@ -7,6 +7,8 @@ export async function pushNote(note: Note, userId: string) {
   const { error } = await supabase.from("notes").upsert({
     id: note.id,
     user_id: userId,
+    canvas_id: note.canvasId ?? null,
+    created_by: note.createdBy ?? userId,
     title: note.title,
     text: note.text,
     x: note.x,
@@ -30,13 +32,22 @@ export async function deleteNote(id: string) {
   if (error) console.error("deleteNote error:", error);
 }
 
-export async function pullNotes(userId: string): Promise<Note[]> {
-  const { data, error } = await supabase
+export async function pullNotes(
+  userId: string,
+  canvasId?: string,
+): Promise<Note[]> {
+  let query = supabase
     .from("notes")
     .select("*")
-    .eq("user_id", userId)
     .order("updated_at", { ascending: false });
 
+  if (canvasId) {
+    query = query.eq("canvas_id", canvasId);
+  } else {
+    query = query.eq("user_id", userId).is("canvas_id", null);
+  }
+
+  const { data, error } = await query;
   if (error) {
     console.error("pullNotes error:", error);
     return [];
@@ -56,6 +67,8 @@ export async function pullNotes(userId: string): Promise<Note[]> {
     videoPaths: row.video_paths ?? [],
     videoThumbPaths: row.video_thumb_paths ?? [],
     pdfPaths: row.pdf_paths ?? [],
+    canvasId: row.canvas_id,
+    createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
@@ -67,6 +80,7 @@ export async function pushEdge(edge: NoteEdge, userId: string) {
   const { error } = await supabase.from("edges").upsert({
     id: edge.id,
     user_id: userId,
+    canvas_id: edge.canvasId ?? null,
     source: edge.source,
     target: edge.target,
     source_handle: edge.sourceHandle,
@@ -81,12 +95,19 @@ export async function deleteEdge(id: string) {
   if (error) console.error("deleteEdge error:", error);
 }
 
-export async function pullEdges(userId: string): Promise<NoteEdge[]> {
-  const { data, error } = await supabase
-    .from("edges")
-    .select("*")
-    .eq("user_id", userId);
+export async function pullEdges(
+  userId: string,
+  canvasId?: string,
+): Promise<NoteEdge[]> {
+  let query = supabase.from("edges").select("*");
 
+  if (canvasId) {
+    query = query.eq("canvas_id", canvasId);
+  } else {
+    query = query.eq("user_id", userId).is("canvas_id", null);
+  }
+
+  const { data, error } = await query;
   if (error) {
     console.error("pullEdges error:", error);
     return [];
@@ -98,6 +119,7 @@ export async function pullEdges(userId: string): Promise<NoteEdge[]> {
     target: row.target,
     sourceHandle: row.source_handle,
     targetHandle: row.target_handle,
+    canvasId: row.canvas_id,
     createdAt: row.created_at,
   }));
 }
@@ -108,6 +130,7 @@ export async function pushLabel(label: NoteLabel, userId: string) {
   const { error } = await supabase.from("labels").upsert({
     id: label.id,
     user_id: userId,
+    canvas_id: label.canvasId ?? null,
     text: label.text,
     x: label.x,
     y: label.y,
@@ -125,12 +148,19 @@ export async function deleteLabel(id: string) {
   if (error) console.error("deleteLabel error:", error);
 }
 
-export async function pullLabels(userId: string): Promise<NoteLabel[]> {
-  const { data, error } = await supabase
-    .from("labels")
-    .select("*")
-    .eq("user_id", userId);
+export async function pullLabels(
+  userId: string,
+  canvasId?: string,
+): Promise<NoteLabel[]> {
+  let query = supabase.from("labels").select("*");
 
+  if (canvasId) {
+    query = query.eq("canvas_id", canvasId);
+  } else {
+    query = query.eq("user_id", userId).is("canvas_id", null);
+  }
+
+  const { data, error } = await query;
   if (error) {
     console.error("pullLabels error:", error);
     return [];
@@ -144,6 +174,7 @@ export async function pullLabels(userId: string): Promise<NoteLabel[]> {
     width: row.width,
     height: row.height,
     fontSize: row.font_size as "sm" | "md" | "lg",
+    canvasId: row.canvas_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
@@ -151,11 +182,11 @@ export async function pullLabels(userId: string): Promise<NoteLabel[]> {
 
 // ---- Full sync ----
 
-export async function pullAll(userId: string) {
+export async function pullAll(userId: string, canvasId?: string) {
   const [notes, edges, labels] = await Promise.all([
-    pullNotes(userId),
-    pullEdges(userId),
-    pullLabels(userId),
+    pullNotes(userId, canvasId),
+    pullEdges(userId, canvasId),
+    pullLabels(userId, canvasId),
   ]);
   return { notes, edges, labels };
 }

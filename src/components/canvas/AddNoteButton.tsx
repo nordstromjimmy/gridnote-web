@@ -8,10 +8,9 @@ export default function AddNoteButton({ onAdd }: AddNoteButtonProps) {
   return (
     <button
       onClick={onAdd}
+      onPointerDown={(e) => e.stopPropagation()}
       className="flex items-center gap-2 px-5 py-3.5 md:py-3 rounded-2xl text-white text-sm font-semibold shadow-lg transition-all active:scale-95"
       style={{ backgroundColor: "#546E7A", minWidth: 44, minHeight: 44 }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#607D8B")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#546E7A")}
     >
       <svg
         width="16"
