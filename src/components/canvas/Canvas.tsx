@@ -380,7 +380,12 @@ function CanvasInner() {
         />
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3">
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-3"
+        style={{
+          bottom: "max(32px, env(safe-area-inset-bottom, 32px) + 16px)",
+        }}
+      >
         <AddNoteButton onAdd={handleAddNote} />
         <AddLabelButton onAdd={handleAddLabel} />
       </div>

@@ -43,12 +43,7 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Grid Notes",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
 
   // Open Graph — controls Facebook, LinkedIn, Discord previews
   openGraph: {

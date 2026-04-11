@@ -6,7 +6,10 @@ export default function CanvasControls() {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
 
   return (
-    <div className="absolute bottom-6 right-4 flex flex-col gap-2 z-10">
+    <div
+      className="absolute right-4 flex flex-col gap-2 z-10"
+      style={{ bottom: "max(24px, env(safe-area-inset-bottom, 24px) + 16px)" }}
+    >
       <button
         onClick={() => zoomIn()}
         className="w-10 h-10 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-white text-lg font-light transition-colors"

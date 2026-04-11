@@ -52,8 +52,11 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
       <button
         onClick={handleOpen}
         onPointerDown={(e) => e.stopPropagation()}
-        className="absolute bottom-48 md:bottom-40 right-4 z-10 w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95"
-        style={{ backgroundColor: "#263238" }}
+        className="absolute right-4 z-10 w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95"
+        style={{
+          bottom: "max(144px, env(safe-area-inset-bottom, 0px) + 144px)",
+          backgroundColor: "#263238",
+        }}
         title="Search notes"
       >
         <svg
